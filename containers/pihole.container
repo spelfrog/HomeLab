@@ -1,0 +1,35 @@
+[Unit]
+Description=Pi Hole Container
+After=local-fs.target network-online.target
+
+Requires=unbound.service
+
+[Container]
+Image=docker.io/pihole/pihole
+ContainerName=pi-hole
+AutoUpdate=registry
+
+Network=host
+HostName=pi-hole
+
+Environment=TZ=Europe/Berlin
+Environment=SERVERIP=10.6.25.5
+Environment=PIHOLE_DNS_="127.0.0.1#5353"
+Environment=DNSSEC=true
+Environment=CONDITIONAL_FORWARDING=true
+Environment=CONDITIONAL_FORWARDING_IP=10.6.25.1
+Environment=CONDITIONAL_FORWARDING_DOMAIN=lan
+Environment=WEB_PORT=8888
+Environment=TEMPERATUREUNIT=c
+Environment=WEBPASSWORD_FILE=/run/secrets/pihole_password
+Secret=pihole_password
+
+Volume=/home/admin/config/pihole/data:/etc/pihole:Z
+Volume=/home/admin/config/pihole/dnsmasq.d:/etc/dnsmasq.d:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

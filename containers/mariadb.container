@@ -1,0 +1,25 @@
+[Unit]
+Description=MariaDB Container
+After=local-fs.target network-online.target
+
+[Container]
+Image=docker.io/library/mariadb:10.11
+ContainerName=mariadb
+AutoUpdate=registry
+
+PublishPort=3306:3306
+
+SeccompProfile=unconfined
+SeccompProfile=unconfined
+
+Environment=MARIADB_AUTO_UPGRADE=1
+Secret=mariadb_password,type=env,target=MARIADB_ROOT_PASSWORD
+
+Volume=/home/admin/config/mariadb:/var/lib/mysql:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

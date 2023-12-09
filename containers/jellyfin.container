@@ -1,0 +1,27 @@
+[Unit]
+Description=Jellyfin Container
+After=local-fs.target network-online.target
+
+[Container]
+Image=docker.io/jellyfin/jellyfin:latest
+ContainerName=jellyfin
+AutoUpdate=registry
+
+PublishPort=8096:8096
+
+AddDevice=/dev/dri/renderD128:/dev/dri/renderD128
+
+User=1000
+Group=1000
+Group=488
+
+Volume=jellyfin-cache:/cache:Z
+Volume=/home/admin/config/jellyfin:/config:Z
+Volume=/mnt/pool/media:/media:ro
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

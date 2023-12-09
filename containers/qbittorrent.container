@@ -1,0 +1,34 @@
+[Unit]
+Description=qBittorrent Container
+After=local-fs.target network-online.target
+
+BindsTo=gluetun.service
+After=gluetun.service
+
+RequiresMountsFor=/mnt/ssd
+RequiresMountsFor=/mnt/disk1
+RequiresMountsFor=/mnt/disk2
+RequiresMountsFor=/mnt/disk3
+
+[Container]
+Image=lscr.io/linuxserver/qbittorrent:latest
+ContainerName=qbittorrent
+AutoUpdate=registry
+
+Network=container:gluetun
+
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=UMASK=002
+Environment=TZ=Europe/Berlin
+Environment=WEBUI_PORT=8005
+
+Volume=/home/admin/config/qbittorrent/:/config:Z
+Volume=/mnt/pool/media/Downloads:/data/Downloads:z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

@@ -1,0 +1,30 @@
+[Unit]
+Description=InfluxDB Container
+After=local-fs.target network-online.target
+
+[Container]
+Image=docker.io/library/influxdb:latest
+ContainerName=influxdb
+AutoUpdate=registry
+
+PublishPort=8086:8086
+
+User=1000
+Group=1000
+
+Environment=DOCKER_INFLUXDB_INIT_MODE=setup
+Environment=DOCKER_INFLUXDB_INIT_USERNAME=admin
+Environment=DOCKER_INFLUXDB_INIT_BUCKET=data
+Environment=DOCKER_INFLUXDB_INIT_ORG=home
+
+Secret=influxdb_password,type=env,target=DOCKER_INFLUXDB_INIT_PASSWORD
+
+Volume=/home/admin/config/influxdb/data:/var/lib/influxdb2:Z
+Volume=/home/admin/config/influxdb/etc:/etc/influxdb2:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

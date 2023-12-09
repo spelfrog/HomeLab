@@ -1,0 +1,38 @@
+[Unit]
+Description=Photoprism Container
+After=local-fs.target network-online.target
+
+Requires=mariadb.service
+
+RequiresMountsFor=/mnt/ssd
+RequiresMountsFor=/mnt/disk1
+RequiresMountsFor=/mnt/disk2
+RequiresMountsFor=/mnt/disk3
+
+[Container]
+Image=docker.io/photoprism/photoprism:latest
+ContainerName=photoprism
+AutoUpdate=registry
+
+PublishPort=2342:2342
+
+AddDevice=/dev/dri/renderD128:/dev/dri/renderD128
+
+Environment=PHOTOPRISM_UPLOAD_NSFW=true
+Environment=PHOTOPRISM_SPONSOR=true
+Environment=PHOTOPRISM_FFMPEG_ENCODER=intel
+Environment=PHOTOPRISM_FFMPEG_SIZE=1920
+Environment=PHOTOPRISM_FFMPEG_BITRATE=32
+Environment=PUID=1000
+Environment=PGID=1000
+Secret=photoprism_password,type=env,target=PHOTOPRISM_ADMIN_PASSWORD
+
+Volume=/home/admin/config/photoprism:/photoprism/storage:Z
+Volume=/mnt/pool/data/Pictures:/photoprism/originals:z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

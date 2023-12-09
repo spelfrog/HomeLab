@@ -1,0 +1,23 @@
+[Unit]
+Description=ESPHome Container
+After=local-fs.target network-online.target
+
+[Container]
+Image=ghcr.io/esphome/esphome
+ContainerName=esphome
+AutoUpdate=registry
+
+PublishPort=6502:6502
+
+User=1000
+Group=1000
+
+Volume=/home/admin/config/esphome/:/config:Z
+Volume=/etc/localtime:/etc/localtime:ro
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

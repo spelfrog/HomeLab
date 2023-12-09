@@ -1,0 +1,22 @@
+[Unit]
+Description=Homer Container
+After=local-fs.target network-online.target
+
+[Container]
+Image=docker.io/b4bz/homer:latest
+ContainerName=homer
+AutoUpdate=registry
+
+PublishPort=8080:8080
+
+User=1000
+Group=1000
+
+Volume=/home/admin/config/homer/:/www/assets:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

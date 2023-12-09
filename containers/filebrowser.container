@@ -1,0 +1,32 @@
+[Unit]
+Description=Filebrowser Container
+After=local-fs.target network-online.target
+
+[Container]
+Image=docker.io/filebrowser/filebrowser:s6
+ContainerName=Filebrowser
+AutoUpdate=registry
+
+PublishPort=8002:8002
+
+Environment=TZ=Europe/Berlin
+Environment=PGID=1000
+Environment=PUID=1000
+
+Volume=/mnt/pool/data:/srv/data:z
+Volume=/mnt/pool/media:/srv/media:z
+Volume=/home/admin:/srv/home:z
+
+Volume=/home/admin/config/filebrowser/data:/database:Z
+Volume=/home/admin/config/filebrowser/config:/config:Z
+
+HealthCmd=curl -f http://127.0.0.1:8002/health || exit 1
+HealthInterval=2m
+
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

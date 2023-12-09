@@ -1,0 +1,31 @@
+[Unit]
+Description=Scrutiny Collector Container
+After=local-fs.target network-online.target
+
+Requires=scrutiny-web.service
+
+[Container]
+Image=ghcr.io/analogj/scrutiny:master-collector
+ContainerName=scrutiny-collector
+AutoUpdate=registry
+
+Volume=/run/udev:/run/udev:ro
+AddCapability=SYS_RAWIO
+AddDevice=/dev/sda
+AddDevice=/dev/sdb
+AddDevice=/dev/sdc
+AddDevice=/dev/sdd
+AddDevice=/dev/sde
+
+Environment=COLLECTOR_LOG_LEVEL=INFO
+Environment=COLLECTOR_API_ENDPOINT=http://host.containers.internal:8006
+Environment=COLLECTOR_RUN_STARTUP=true
+Environment=COLLECTOR_RUN_STARTUP_SLEEP=30
+Environment=COLLECTOR_CRON_SCHEDULE="*/10 * * * *"
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

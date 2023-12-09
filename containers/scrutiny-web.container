@@ -1,0 +1,30 @@
+[Unit]
+Description=Scrutiny Web Container
+After=local-fs.target network-online.target
+Requires=influxdb.service
+
+
+[Container]
+Image=ghcr.io/analogj/scrutiny:master-web
+ContainerName=scrutiny-web
+AutoUpdate=registry
+
+PublishPort=8006:8006
+
+User=1000
+Group=1000
+
+Volume=/home/admin/config/scrutiny:/opt/scrutiny/config:Z
+Environment=SCRUTINY_WEB_LISTEN_PORT=8006
+Environment=SCRUTINY_WEB_INFLUXDB_HOST=host.containers.internal
+Environment=SCRUTINY_WEB_INFLUXDB_PORT=8086
+Environment=SCRUTINY_WEB_INFLUXDB_BUCKET=smart
+Environment=SCRUTINY_WEB_INFLUXDB_ORG=home
+Secret=influxdb_token_scrutiny,type=env,target=SCRUTINY_WEB_INFLUXDB_TOKEN
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

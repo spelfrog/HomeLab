@@ -1,0 +1,40 @@
+[Unit]
+Description=Gluetun Container
+After=local-fs.target network-online.target
+
+Wants=radarr.service sonarr.service prowlarr.service qbittorrent.service sabnzbd.service
+
+[Container]
+Image=docker.io/qmcgaw/gluetun
+ContainerName=gluetun
+AutoUpdate=registry
+
+AddDevice=/dev/net/tun:/dev/net/tun
+AddCapability=NET_ADMIN
+
+PublishPort=8000:8000
+PublishPort=7878:7878
+PublishPort=9696:9696
+PublishPort=8989:8989
+PublishPort=8005:8005
+PublishPort=8085:8085
+
+Environment=VPN_SERVICE_PROVIDER=airvpn
+Environment=VPN_TYPE=wireguard
+Environment=SERVER_NAMES=Aljanah
+Environment=FIREWALL_VPN_INPUT_PORTS=51307
+
+Secret=wireguard_private_key,type=env,target=WIREGUARD_PRIVATE_KEY
+Secret=wireguard_preshared_key,type=env,target=WIREGUARD_PRESHARED_KEY
+Secret=wireguard_addresses,type=env,target=WIREGUARD_ADDRESSES
+
+
+Volume=/home/admin/config/gluetun/:/gluetun:Z
+
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

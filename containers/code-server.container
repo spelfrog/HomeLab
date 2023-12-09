@@ -1,0 +1,26 @@
+[Unit]
+Description=Code Server Container
+After=local-fs.target network-online.target
+
+[Container]
+Image=lscr.io/linuxserver/code-server:latest
+ContainerName=code-server
+AutoUpdate=registry
+
+PublishPort=8443:8443
+
+Environment=PUID=1000
+Environment=GUID=1000
+Environment=TZ=Europe/Berlin
+Environment=DEFAULT_WORKSPACE=/work
+
+Volume=/home/admin/config/code-server:/config:z
+Volume=/home/admin:/work/home:z
+Volume=/etc/containers/systemd:/work/containers:z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target
