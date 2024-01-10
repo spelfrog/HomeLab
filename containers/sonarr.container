@@ -10,7 +10,7 @@ RequiresMountsFor=/mnt/disk2
 RequiresMountsFor=/mnt/disk3
 
 [Container]
-Image=cr.hotio.dev/hotio/sonarr:latest
+Image=ghcr.io/hotio/sonarr:latest
 ContainerName=sonarr
 AutoUpdate=registry
 

@@ -11,7 +11,7 @@ RequiresMountsFor=/mnt/disk2
 RequiresMountsFor=/mnt/disk3
 
 [Container]
-Image=cr.hotio.dev/hotio/radarr:latest
+Image=ghcr.io/hotio/radarr:latest
 ContainerName=radarr
 AutoUpdate=registry
 
