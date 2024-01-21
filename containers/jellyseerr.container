@@ -1,0 +1,20 @@
+[Unit]
+Description=jellyseerr Container
+After=local-fs.target network-online.target
+
+RequiresMountsFor=/var/mnt/media
+[Container]
+Image=docker.io/fallenbagel/jellyseerr:latest
+ContainerName=jellyseerr
+AutoUpdate=registry
+
+Environment=TZ=Europe/Berlin
+PublishPort=5055:5055
+Volume=/var/config/jellyseerr:/app/config:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

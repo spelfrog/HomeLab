@@ -2,6 +2,8 @@
 Description=Jellyfin Container
 After=local-fs.target network-online.target
 
+RequiresMountsFor=/var/mnt/media
+
 [Container]
 Image=docker.io/jellyfin/jellyfin:latest
 ContainerName=jellyfin
@@ -13,11 +15,10 @@ AddDevice=/dev/dri/renderD128:/dev/dri/renderD128
 
 User=1000
 Group=1000
-Group=488
 
 Volume=jellyfin-cache:/cache:Z
-Volume=/home/admin/config/jellyfin:/config:Z
-Volume=/mnt/pool/media:/media:ro
+Volume=/var/config/jellyfin:/config:Z
+Volume=/var/mnt/media/:/media:ro
 
 [Service]
 Restart=always

@@ -4,10 +4,7 @@ After=local-fs.target network-online.target
 BindsTo=gluetun.service
 After=gluetun.service
 
-RequiresMountsFor=/mnt/ssd
-RequiresMountsFor=/mnt/disk1
-RequiresMountsFor=/mnt/disk2
-RequiresMountsFor=/mnt/disk3
+RequiresMountsFor=/var/mnt/media
 
 [Container]
 Image=ghcr.io/hotio/sonarr:latest
@@ -21,8 +18,9 @@ Environment=PGID=1000
 Environment=UMASK=002
 Environment=TZ=Europe/Berlin
 
-Volume=/home/admin/config/sonarr/:/config:Z
-Volume=/mnt/pool/media/:/data:z
+Volume=/var/config/sonarr/:/config:Z
+Volume=/var/mnt/media/:/data:z
+Volume=Downloads:/downloads:z
 
 [Service]
 Restart=always

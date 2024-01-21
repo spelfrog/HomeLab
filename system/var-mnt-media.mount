@@ -1,0 +1,10 @@
+[Unit]
+Description=Mount media directory
+
+[Mount]
+What=/dev/mapper/external-media
+Where=/var/mnt/media
+Type=ext4
+
+[Install]
+WantedBy=multi-user.target

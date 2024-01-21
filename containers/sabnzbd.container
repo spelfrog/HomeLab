@@ -5,10 +5,7 @@ After=local-fs.target network-online.target
 BindsTo=gluetun.service
 After=gluetun.service
 
-RequiresMountsFor=/mnt/ssd
-RequiresMountsFor=/mnt/disk1
-RequiresMountsFor=/mnt/disk2
-RequiresMountsFor=/mnt/disk3
+RequiresMountsFor=/var/mnt/media
 
 [Container]
 Image=lscr.io/linuxserver/sabnzbd:latest
@@ -23,9 +20,8 @@ Environment=UMASK=002
 Environment=TZ=Europe/Berlin
 
 
-Volume=/home/admin/config/sabnzbd/:/config:Z
-Volume=/mnt/pool/media/Downloads:/data/Downloads:z
-Volume=/mnt/pool/media/.incomplete_downloads:/data/incomplete-downloads:z
+Volume=/var/config/sabnzbd/:/config:Z
+Volume=Downloads:/downloads:z
 
 [Service]
 Restart=always
