@@ -55,3 +55,31 @@ Belongs in /etc/systemd/system/
 ```bash
 sudo chown 1000:1000 /var/mnt/media/
 ```
+
+## Storage
+
+### Add hdd
+
+Add  the drive to the file system
+```bash
+# create physical volume
+sudo pvcreate /dev/sd?
+# add to volume group
+sudo vgextend external /dev/sdc
+# extend logical volume
+sudo lvm lvextend -l +100%FREE /dev/mapper/external-media
+# resize fs
+sudo resize2fs /dev/mapper/external-media 
+```
+
+~The up spin down. Use a toolbox for hdparm~
+```bash
+sudo toolbox enter
+dnf install hdparm -y
+```
+
+
+
+
+
+
