@@ -15,8 +15,7 @@ User=1000
 Group=1000
 
 Environment=TZ=Europe/Berlin
-
-Volume=/home/admin/config/homeassistant/:/config:Z
+Volume=/var/config/homeassistant/:/config:Z
 
 [Service]
 Restart=always
