@@ -1,0 +1,26 @@
+[Unit]
+Description=Sftp Container
+After=local-fs.target network-online.target
+RequiresMountsFor=/var/mnt/media
+
+[Container]
+Image=docker.io/atmoz/sftp:latest
+ContainerName=sftp
+AutoUpdate=registry
+
+#Environment=PUID=1000
+#Environment=PGID=1000
+#Environment=UMASK=002
+#Environment=TZ=Europe/Berlin
+
+Volume=Downloads:/home/raphael/downloads:ro
+
+PublishPort=2222:22
+Exec=raphael:raphael:1000
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target
