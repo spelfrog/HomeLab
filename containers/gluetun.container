@@ -9,8 +9,13 @@ Image=docker.io/qmcgaw/gluetun
 ContainerName=gluetun
 AutoUpdate=registry
 
-AddDevice=/dev/net/tun
+AddDevice=/dev/net/tun:/dev/net/tun
 AddCapability=NET_ADMIN
+#AddCapability=SYS_MODULE
+
+SecurityLabelDisable=true
+
+Network=gluetun.network
 
 # ??
 PublishPort=8000:8000
@@ -32,9 +37,16 @@ Environment=VPN_TYPE=wireguard
 Environment=SERVER_NAMES=Aljanah
 Environment=FIREWALL_VPN_INPUT_PORTS=56875
 
+# Environment=VPN_ENDPOINT_IP=2a00:1678:2470:1111:c591:12bd:c401:e819
+# Environment=VPN_ENDPOINT_PORT=
+# Environment=WIREGUARD_MTU=1280
+
 Secret=wireguard_private_key,type=env,target=WIREGUARD_PRIVATE_KEY
 Secret=wireguard_preshared_key,type=env,target=WIREGUARD_PRESHARED_KEY
 Secret=wireguard_addresses,type=env,target=WIREGUARD_ADDRESSES
+
+
+#Volume=/var/config/gluetun/:/gluetun:Z
 
 
 [Service]
