@@ -1,0 +1,17 @@
+[Unit]
+Description=Redis Broker for Paperless-ngx
+
+[Container]
+Image=docker.io/library/redis:8
+AutoUpdate=registry
+
+Volume=paperless-redisdata:/data
+Network=paperless.network
+
+ContainerName=paperless-redis
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,22 @@
+[Unit]
+Description=PostgreSQL Database for Paperless-ngx
+
+[Container]
+Image=docker.io/library/postgres:18
+AutoUpdate=registry
+
+Volume=paperless-pgdata:/var/lib/postgresql
+Network=paperless.network
+
+ContainerName=paperless-postgres
+
+Environment=POSTGRES_DB=paperless
+Environment=POSTGRES_USER=paperless
+Environment=POSTGRES_PASSWORD=paperless
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
