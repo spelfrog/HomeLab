@@ -82,14 +82,20 @@ Lives in `containers/pihole/`. The web password comes from a secret:
 printf "*****" | sudo podman secret create pihole_password -
 ```
 
-`custom.list` holds the local DNS records for all `*.reihungen.de` hostnames
-so that they resolve to core1/core2 inside the home network instead of the
-public wildcard. Deploy it and reload:
+`custom.list` holds the local A records for all `*.reihungen.de` hostnames so
+that they resolve to core1/core2 inside the home network instead of the public
+wildcard. `05-local-records.conf` declares the same names as local, otherwise
+dnsmasq forwards AAAA queries upstream and clients get the public wildcard
+CNAME (with an hour of TTL) anyway. Both files must list the same names.
+Deploy and reload:
 
 ```bash
 sudo cp custom.list /var/lib/pihole/pihole/custom.list
+sudo cp 05-local-records.conf /var/lib/pihole/dnsmasq/05-local-records.conf
 sudo podman exec systemd-pihole pihole restartdns
 ```
+
+Clients that cached the public answer need a flush, e.g. `resolvectl flush-caches`.
 
 The web UI is only published on `127.0.0.1:8888` and reached through caddy as
 `pihole.reihungen.de`.
@@ -144,7 +150,8 @@ What needs what after a change:
 Adding a service:
 
 1. `Caddyfile.<host>`: new site block with `import cert` and `reverse_proxy`
-2. `../pihole/custom.list`: new `192.168.2.1x name.reihungen.de` line (see pihole)
+2. `../pihole/custom.list`: new `192.168.2.1x name.reihungen.de` line, and the
+   name in `../pihole/05-local-records.conf` (see pihole)
 3. `site/links.<host>.js`: new entry, optional logo in `site/icons/`
 
 | Host  | Hostnames (`*.reihungen.de`)                                  |
