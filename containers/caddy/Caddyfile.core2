@@ -1,0 +1,39 @@
+# Caddyfile for core2 (192.168.2.14). Deployed to /var/config/caddy/Caddyfile
+{
+	# Certificates come from lego, Caddy must not try ACME itself
+	auto_https disable_certs
+}
+
+(cert) {
+	tls /certs/reihungen.de.crt /certs/reihungen.de.key
+}
+
+jellyfin.reihungen.de {
+	import cert
+	reverse_proxy localhost:8096
+}
+
+jellyseerr.reihungen.de {
+	import cert
+	reverse_proxy localhost:5055
+}
+
+radarr.reihungen.de {
+	import cert
+	reverse_proxy localhost:7878
+}
+
+sonarr.reihungen.de {
+	import cert
+	reverse_proxy localhost:8989
+}
+
+prowlarr.reihungen.de {
+	import cert
+	reverse_proxy localhost:9696
+}
+
+sabnzbd.reihungen.de {
+	import cert
+	reverse_proxy localhost:8080
+}

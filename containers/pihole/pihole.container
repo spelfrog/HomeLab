@@ -8,6 +8,8 @@ Volume=/var/lib/pihole/pihole:/etc/pihole:z
 Volume=/var/lib/pihole/dnsmasq:/etc/dnsmasq.d:z
 PublishPort=192.168.2.13:53:53/tcp
 PublishPort=192.168.2.13:53:53/udp
+# Web UI only on loopback, published as pihole.reihungen.de by caddy
+PublishPort=127.0.0.1:8888:80/tcp
 Secret=pihole_password,type=env,target=WEBPASSWORD
 
 [Service]

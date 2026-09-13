@@ -1,0 +1,15 @@
+# Local DNS records for the home network (Pi-hole "Local DNS Records").
+# Deployed to /var/lib/pihole/pihole/custom.list on core1, then: pihole restartdns
+192.168.2.13 core1.reihungen.de
+192.168.2.13 home.reihungen.de
+192.168.2.13 paperless.reihungen.de
+192.168.2.13 photos.reihungen.de
+192.168.2.13 pihole.reihungen.de
+192.168.2.13 spoolman.reihungen.de
+192.168.2.14 core2.reihungen.de
+192.168.2.14 jellyfin.reihungen.de
+192.168.2.14 jellyseerr.reihungen.de
+192.168.2.14 radarr.reihungen.de
+192.168.2.14 sonarr.reihungen.de
+192.168.2.14 prowlarr.reihungen.de
+192.168.2.14 sabnzbd.reihungen.de

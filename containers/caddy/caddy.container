@@ -1,0 +1,28 @@
+[Unit]
+Description=Caddy Container (reverse proxy for *.reihungen.de)
+After=local-fs.target network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/library/caddy:latest
+ContainerName=caddy
+AutoUpdate=registry
+
+# Host network: proxies to the ports the other containers publish on localhost
+Network=host
+
+Environment=TZ=Europe/Berlin
+
+# Caddyfile.<host> from the repo, deployed as /var/config/caddy/Caddyfile
+Volume=/var/config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro,z
+# Certificates written by lego.service (shared label, see lego.container)
+Volume=/var/config/lego/certificates:/certs:ro,z
+Volume=caddy-data:/data
+Volume=caddy-config:/config
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

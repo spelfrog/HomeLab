@@ -1,0 +1,10 @@
+[Unit]
+Description=Reload Caddy when lego has written a new certificate
+
+[Path]
+# lego writes .crt, .issuer.crt, .key and finally .json, so watch the last one
+PathChanged=/var/config/lego/certificates/reihungen.de.json
+Unit=caddy-reload.service
+
+[Install]
+WantedBy=multi-user.target

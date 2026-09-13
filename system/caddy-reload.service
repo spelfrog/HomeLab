@@ -1,0 +1,7 @@
+[Unit]
+Description=Reload Caddy configuration and certificates
+After=caddy.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/podman exec caddy caddy reload --config /etc/caddy/Caddyfile --force

@@ -19,7 +19,7 @@ Environment=LEGO_DISABLE_CNAME_SUPPORT=true
 Secret=inwx_username,type=env,target=INWX_USERNAME
 Secret=inwx_password,type=env,target=INWX_PASSWORD
 
-Volume=/var/config/lego:/.lego:Z
+Volume=/var/config/lego:/.lego:z
 
 # lego 5: "run" obtains the certificate on the first run and renews it on
 # later runs when it is due (dynamic: 1/3 of the lifetime left).
