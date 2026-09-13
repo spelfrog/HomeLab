@@ -8,6 +8,14 @@
 	tls /certs/reihungen.de.crt /certs/reihungen.de.key
 }
 
+# Hub page listing this host's services (static files from /var/config/caddy/site)
+core1.reihungen.de {
+	import cert
+	root * /srv
+	file_server
+	header Cache-Control "no-cache"
+}
+
 home.reihungen.de {
 	import cert
 	reverse_proxy localhost:8123

@@ -107,31 +107,50 @@ printf "*****" | sudo podman secret create photoprism_password -
 ### caddy
 
 Reverse proxy with the lego certificate, one instance per host. The unit is
-identical on both hosts; only the Caddyfile differs. Uses host networking and
-proxies to the ports the services publish on localhost.
+identical on both hosts; only the Caddyfile and the hub links differ. Uses host
+networking and proxies to the ports the services publish on localhost.
+
+`site/` is a small static hub page served as `core1.reihungen.de` /
+`core2.reihungen.de`: `index.html` (shared), `links.<host>.js` (the list of
+services, deployed as `links.js`) and `icons/` (SVG logos, see
+`icons/README.md`).
+
+First deploy (example core1, use `core2` files on core2):
 
 ```bash
-sudo mkdir -p /var/config/caddy /etc/containers/systemd/caddy
+sudo mkdir -p /var/config/caddy/site /etc/containers/systemd/caddy
+sudo cp Caddyfile.core1 /var/config/caddy/Caddyfile
+sudo cp -r site/index.html site/icons /var/config/caddy/site/
+sudo cp site/links.core1.js /var/config/caddy/site/links.js
 sudo cp caddy.container /etc/containers/systemd/caddy/
-sudo cp Caddyfile.core1 /var/config/caddy/Caddyfile   # or Caddyfile.core2
 sudo cp ../../system/caddy-reload.* /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl start caddy.service
 sudo systemctl enable --now caddy-reload.path
 ```
 
-`caddy-reload.path` watches the lego certificate and reloads caddy after a
-renewal. Adding a service means: a site block in the host's Caddyfile, a line
-in `pihole/custom.list`, then
+Use `cp`, not `mv` from `/tmp`: a moved file keeps its `user_tmp_t` SELinux
+label and caddy answers 403.
 
-```bash
-sudo podman exec caddy caddy reload --config /etc/caddy/Caddyfile
-```
+What needs what after a change:
+
+| Changed file          | Action                                                        |
+|-----------------------|---------------------------------------------------------------|
+| `Caddyfile.<host>`    | copy, then `sudo systemctl start caddy-reload.service`        |
+| `site/*`              | copy only, served live                                        |
+| `caddy.container`     | copy, `daemon-reload`, `systemctl restart caddy.service`      |
+| lego certificate      | nothing, `caddy-reload.path` reloads caddy automatically      |
+
+Adding a service:
+
+1. `Caddyfile.<host>`: new site block with `import cert` and `reverse_proxy`
+2. `../pihole/custom.list`: new `192.168.2.1x name.reihungen.de` line (see pihole)
+3. `site/links.<host>.js`: new entry, optional logo in `site/icons/`
 
 | Host  | Hostnames (`*.reihungen.de`)                                  |
 |-------|---------------------------------------------------------------|
-| core1 | home, paperless, photos, pihole, spoolman                     |
-| core2 | jellyfin, jellyseerr, radarr, sonarr, prowlarr, sabnzbd       |
+| core1 | core1 (hub), home, paperless, photos, pihole, spoolman         |
+| core2 | core2 (hub), jellyfin, jellyseerr, radarr, sonarr, prowlarr, sabnzbd |
 
 ### jellyfin prowlarr radarr sabnzbd sonarr
 

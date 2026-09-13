@@ -17,6 +17,8 @@ Environment=TZ=Europe/Berlin
 Volume=/var/config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro,z
 # Certificates written by lego.service (shared label, see lego.container)
 Volume=/var/config/lego/certificates:/certs:ro,z
+# Static hub page for core<N>.reihungen.de (index.html, links.js, icons/ from containers/caddy/site)
+Volume=/var/config/caddy/site:/srv:ro,z
 Volume=caddy-data:/data
 Volume=caddy-config:/config
 

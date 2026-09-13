@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>Hub</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --fg: #1d1f24; --muted: #6b7280;
+    --card: #ffffff; --border: #e3e5ea; --accent: #2563eb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --fg: #e6e8ee; --muted: #9aa1ad;
+      --card: #1e2128; --border: #2b2f38; --accent: #7aa2ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 1.5rem 1rem 3rem;
+    background: var(--bg); color: var(--fg);
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 60rem; margin: 0 auto; }
+  header { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  h1 { margin: 0; font-size: 1.75rem; }
+  header small { color: var(--muted); font-family: ui-monospace, monospace; }
+  ul { list-style: none; margin: 0; padding: 0;
+       display: grid; gap: .75rem;
+       grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+  li a {
+    display: flex; align-items: center; gap: .9rem;
+    min-height: 4.25rem; padding: .8rem 1rem;
+    background: var(--card); border: 1px solid var(--border); border-radius: .75rem;
+    color: inherit; text-decoration: none;
+    transition: border-color .15s, transform .15s;
+  }
+  li a:hover, li a:focus-visible { border-color: var(--accent); transform: translateY(-1px); outline: none; }
+  li img { width: 2.5rem; height: 2.5rem; flex: none; object-fit: contain; }
+  li .text { min-width: 0; }
+  li strong { display: block; font-size: 1.05rem; }
+  li small { color: var(--muted); }
+  footer { margin-top: 2rem; color: var(--muted); font-size: .9rem; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 id="title">Hub</h1>
+    <small id="ip"></small>
+  </header>
+  <ul id="services"></ul>
+  <footer id="footer"></footer>
+  <noscript>This page needs JavaScript to render the list from links.js.</noscript>
+</main>
+<script src="links.js"></script>
+<script>
+  // Renders window.HUB (defined in links.js). Add services there, not here.
+  (function () {
+    var hub = window.HUB || { services: [] };
+    var name = hub.host || "Hub";
+    document.title = name + " hub";
+    document.getElementById("title").textContent = name;
+    document.getElementById("ip").textContent = hub.ip || "";
+
+    var list = document.getElementById("services");
+    hub.services.forEach(function (s) {
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      a.href = s.url;
+      if (s.icon) {
+        var img = document.createElement("img");
+        img.src = "icons/" + s.icon + ".svg";
+        img.alt = "";
+        img.onerror = function () { img.remove(); };
+        a.appendChild(img);
+      }
+      var text = document.createElement("div");
+      text.className = "text";
+      var strong = document.createElement("strong");
+      strong.textContent = s.name;
+      text.appendChild(strong);
+      if (s.desc) {
+        var small = document.createElement("small");
+        small.textContent = s.desc;
+        text.appendChild(small);
+      }
+      a.appendChild(text);
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+
+    if (hub.other) {
+      var f = document.getElementById("footer");
+      f.appendChild(document.createTextNode("Other host: "));
+      var o = document.createElement("a");
+      o.href = hub.other.url;
+      o.textContent = hub.other.name;
+      f.appendChild(o);
+    }
+  })();
+</script>
+</body>
+</html>
