@@ -83,16 +83,12 @@ printf "*****" | sudo podman secret create pihole_password -
 ### photo (photoprism + mariadb)
 
 Photoprism, its MariaDB and the `photo.network` live in `containers/photo/`.
-Admin and database passwords come from secrets:
+The database is only reachable inside `photo.network`, so its credentials
+are kept inline. Only the admin password is a secret:
 
 ```bash
 printf "*****" | sudo podman secret create photoprism_password -
-printf "*****" | sudo podman secret create photoprism_db_password -
-printf "*****" | sudo podman secret create photoprism_mariadb_root_password -
 ```
-
-`photoprism_db_password` is shared by both containers. When migrating an
-existing installation, use the passwords the database was created with.
 
 ### jellyfin prowlarr radarr sabnzbd sonarr
 

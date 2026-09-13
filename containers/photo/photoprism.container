@@ -26,7 +26,7 @@ Environment=PHOTOPRISM_DATABASE_DRIVER=mysql
 Environment=PHOTOPRISM_DATABASE_SERVER=photoprism-mariadb:3306
 Environment=PHOTOPRISM_DATABASE_NAME=photoprism
 Environment=PHOTOPRISM_DATABASE_USER=photoprism
-Secret=photoprism_db_password,type=env,target=PHOTOPRISM_DATABASE_PASSWORD
+Environment=PHOTOPRISM_DATABASE_PASSWORD=photoprism
 
 Secret=photoprism_password,type=env,target=PHOTOPRISM_ADMIN_PASSWORD
 
