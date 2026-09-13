@@ -1,17 +1,34 @@
-[Install]
-WantedBy=default.target
+[Unit]
+Description=Pi-hole Container
+After=local-fs.target network-online.target
+Wants=network-online.target
 
 [Container]
-# Pinned to the last v5 release; the v6 migration is a separate step
-Image=docker.io/pihole/pihole:2024.07.0
+Image=docker.io/pihole/pihole:latest
 AutoUpdate=registry
+
+Environment=TZ=Europe/Berlin
+# Bridge network: answer queries from the whole LAN, not only the podman subnet
+Environment=FTLCONF_dns_listeningMode=ALL
+# Load /etc/dnsmasq.d (05-local-records.conf)
+Environment=FTLCONF_misc_etc_dnsmasq_d=true
+# No NTP server/client in the container (would need SYS_TIME)
+Environment=FTLCONF_ntp_ipv4_active=false
+Environment=FTLCONF_ntp_ipv6_active=false
+Environment=FTLCONF_ntp_sync_active=false
+Secret=pihole_password,type=env,target=FTLCONF_webserver_api_password
+
 Volume=/var/lib/pihole/pihole:/etc/pihole:z
 Volume=/var/lib/pihole/dnsmasq:/etc/dnsmasq.d:z
+
 PublishPort=192.168.2.13:53:53/tcp
 PublishPort=192.168.2.13:53:53/udp
 # Web UI only on loopback, published as pihole.reihungen.de by caddy
 PublishPort=127.0.0.1:8888:80/tcp
-Secret=pihole_password,type=env,target=WEBPASSWORD
 
 [Service]
 Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

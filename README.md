@@ -90,10 +90,14 @@ CNAME (with an hour of TTL) anyway. Both files must list the same names.
 Deploy and reload:
 
 ```bash
-sudo cp custom.list /var/lib/pihole/pihole/custom.list
+sudo cp custom.list /var/lib/pihole/pihole/hosts/custom.list
 sudo cp 05-local-records.conf /var/lib/pihole/dnsmasq/05-local-records.conf
-sudo podman exec systemd-pihole pihole restartdns
+sudo podman exec systemd-pihole pihole reloaddns
 ```
+
+Pi-hole v6: the password secret is passed as `FTLCONF_webserver_api_password`,
+`/etc/dnsmasq.d` is only read because of `FTLCONF_misc_etc_dnsmasq_d=true`.
+The v5 data was migrated in place; a backup is at `/var/lib/pihole-backup-v5-*.tar.gz`.
 
 Clients that cached the public answer need a flush, e.g. `resolvectl flush-caches`.
 
