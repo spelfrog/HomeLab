@@ -12,6 +12,9 @@ AutoUpdate=registry
 Pull=newer
 
 Environment=TZ=Europe/Berlin
+# *.reihungen.de is a wildcard CNAME to a myfritz host. Without this lego would
+# follow it and try to create the TXT record in a zone INWX does not host.
+Environment=LEGO_DISABLE_CNAME_SUPPORT=true
 
 Secret=inwx_username,type=env,target=INWX_USERNAME
 Secret=inwx_password,type=env,target=INWX_PASSWORD
