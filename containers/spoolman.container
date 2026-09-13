@@ -1,0 +1,21 @@
+[Unit]
+Description=Spoolman Container
+After=local-fs.target network-online.target
+
+[Container]
+Image=ghcr.io/donkie/spoolman:latest
+ContainerName=spoolman
+AutoUpdate=registry
+
+PublishPort=7912:8000
+
+Environment=TZ=Europe/Berlin
+
+Volume=/var/config/spoolman:/home/app/.local/share/spoolman:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target
