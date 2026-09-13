@@ -1,0 +1,31 @@
+[Unit]
+Description=Lego Container (Let's Encrypt wildcard certs via INWX DNS)
+After=local-fs.target network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/goacme/lego:latest
+ContainerName=lego
+AutoUpdate=registry
+# The container only lives for seconds, so podman-auto-update never sees it.
+# Pull=newer fetches a newer :latest on every timer run instead.
+Pull=newer
+
+Environment=TZ=Europe/Berlin
+
+Secret=inwx_username,type=env,target=INWX_USERNAME
+Secret=inwx_password,type=env,target=INWX_PASSWORD
+
+Volume=/var/config/lego:/.lego:Z
+
+# lego 5: "run" obtains the certificate on the first run and renews it on
+# later runs when it is due (dynamic: 1/3 of the lifetime left).
+# xn--lgen-0ra.eu is the punycode form of lügen.eu (lego does not convert IDNs).
+Exec=run --accept-tos --email raphael.grund@gmail.com --path /.lego --dns inwx \
+     --domains reihungen.de --domains *.reihungen.de \
+     --domains xn--lgen-0ra.eu --domains *.xn--lgen-0ra.eu
+
+[Service]
+Type=oneshot
+# No RemainAfterExit: it would block re-activation by lego.timer.
+# No TimeoutStartSec: not allowed with Type=oneshot.

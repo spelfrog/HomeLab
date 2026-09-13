@@ -30,6 +30,48 @@ printf "12.34.56.78/32" | sudo podman secret create wireguard_addresses -
 sudo podman run --network container:gluetun --rm python bash -c "curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python -"
 ```
 
+### lego
+
+Obtains one Let's Encrypt wildcard certificate for `reihungen.de` and `lügen.eu`
+via the DNS-01 challenge on INWX. `xn--lgen-0ra.eu` is the punycode form of
+`lügen.eu`; lego does not convert IDNs itself.
+
+```bash
+sudo mkdir -p /var/config/lego
+
+printf "inwx-user" | sudo podman secret create inwx_username -
+printf "inwx-pass" | sudo podman secret create inwx_password -
+```
+
+Optional: test the INWX credentials against the staging CA first. This uses a
+separate data directory, so nothing needs to be cleaned up afterwards:
+
+```bash
+sudo podman run --rm -it \
+  --secret inwx_username,type=env,target=INWX_USERNAME \
+  --secret inwx_password,type=env,target=INWX_PASSWORD \
+  -v /var/config/lego-staging:/.lego:Z \
+  docker.io/goacme/lego:latest \
+  run --server letsencrypt-staging \
+  --accept-tos --email raphael.grund@gmail.com --path /.lego --dns inwx \
+  --domains reihungen.de --domains '*.reihungen.de' \
+  --domains xn--lgen-0ra.eu --domains '*.xn--lgen-0ra.eu'
+sudo rm -rf /var/config/lego-staging
+```
+
+`lego run` obtains the certificate on the first run and renews it on later
+runs when due, so the first real issuance is simply:
+
+```bash
+sudo systemctl start lego.service && journalctl -u lego
+```
+
+The files land in `/var/config/lego/certificates/reihungen.de.{crt,key,issuer.crt,json}`.
+Consumers mount that directory read-only. Renewal runs from `lego.timer` (see System).
+
+To add another domain, append it as `--domains` in `lego.container`, add
+`--renew-force` once, start the service, then remove the flag again.
+
 ### jellyfin prowlarr radarr sabnzbd sonarr
 
 ```bash
@@ -54,6 +96,12 @@ Belongs in /etc/systemd/system/
 
 ```bash
 sudo chown 1000:1000 /var/mnt/media/
+```
+
+### lego.timer
+
+```bash
+sudo systemctl enable --now lego.timer
 ```
 
 ## Storage
