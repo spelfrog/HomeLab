@@ -2,7 +2,8 @@
 WantedBy=default.target
 
 [Container]
-Image=docker.io/pihole/pihole
+# Pinned to the last v5 release; the v6 migration is a separate step
+Image=docker.io/pihole/pihole:2024.07.0
 AutoUpdate=registry
 Volume=/var/lib/pihole/pihole:/etc/pihole:z
 Volume=/var/lib/pihole/dnsmasq:/etc/dnsmasq.d:z
