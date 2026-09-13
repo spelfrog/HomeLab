@@ -20,6 +20,7 @@ Volume=paperless-media:/usr/src/paperless/media
 
 Environment=PAPERLESS_REDIS=redis://paperless-redis:6379
 Environment=PAPERLESS_DBHOST=paperless-postgres
+Environment=PAPERLESS_OCR_LANGUAGE=deu+eng
 
 [Service]
 Restart=always

@@ -72,6 +72,28 @@ Consumers mount that directory read-only. Renewal runs from `lego.timer` (see Sy
 To add another domain, append it as `--domains` in `lego.container`, add
 `--renew-force` once, start the service, then remove the flag again.
 
+### pihole
+
+The web password comes from a secret:
+
+```bash
+printf "*****" | sudo podman secret create pihole_password -
+```
+
+### photo (photoprism + mariadb)
+
+Photoprism, its MariaDB and the `photo.network` live in `containers/photo/`.
+Admin and database passwords come from secrets:
+
+```bash
+printf "*****" | sudo podman secret create photoprism_password -
+printf "*****" | sudo podman secret create photoprism_db_password -
+printf "*****" | sudo podman secret create photoprism_mariadb_root_password -
+```
+
+`photoprism_db_password` is shared by both containers. When migrating an
+existing installation, use the passwords the database was created with.
+
 ### jellyfin prowlarr radarr sabnzbd sonarr
 
 ```bash

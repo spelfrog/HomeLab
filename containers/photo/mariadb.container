@@ -1,0 +1,32 @@
+[Unit]
+Description=MariaDB Container used by Photoprism
+After=local-fs.target network-online.target
+
+[Container]
+Image=docker.io/library/mariadb:10.11
+ContainerName=photoprism-mariadb
+AutoUpdate=registry
+
+Network=photo.network
+
+# PublishPort=3306:3306
+
+#SeccompProfile=unconfined
+
+Environment=MARIADB_AUTO_UPGRADE=1
+#Secret=mariadb_password,type=env,target=MARIADB_ROOT_PASSWORD
+Environment=MARIADB_DATABASE=photoprism
+Environment=MARIADB_USER=photoprism
+Secret=photoprism_db_password,type=env,target=MARIADB_PASSWORD
+Secret=photoprism_mariadb_root_password,type=env,target=MARIADB_ROOT_PASSWORD
+
+
+#todo
+Volume=/var/data/mariadb:/var/lib/mysql:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

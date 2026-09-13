@@ -34,7 +34,7 @@ PublishPort=8080:8080
 
 Environment=VPN_SERVICE_PROVIDER=airvpn
 Environment=VPN_TYPE=wireguard
-Environment=SERVER_NAMES=Aljanah
+Environment=SERVER_NAME=Piautos
 Environment=FIREWALL_VPN_INPUT_PORTS=56875
 
 # Environment=VPN_ENDPOINT_IP=2a00:1678:2470:1111:c591:12bd:c401:e819

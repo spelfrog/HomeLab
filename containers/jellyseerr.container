@@ -4,7 +4,7 @@ After=local-fs.target network-online.target
 
 RequiresMountsFor=/var/mnt/media
 [Container]
-Image=docker.io/fallenbagel/jellyseerr:latest
+Image=ghcr.io/seerr-team/seerr:latest
 ContainerName=jellyseerr
 AutoUpdate=registry
 
