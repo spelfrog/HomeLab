@@ -8,7 +8,7 @@ window.HUB = {
     { name: "Home Assistant", url: "https://home.reihungen.de",      icon: "home",      desc: "Smart home" },
     { name: "Paperless",      url: "https://paperless.reihungen.de", icon: "paperless", desc: "Documents" },
     { name: "PhotoPrism",     url: "https://photos.reihungen.de",    icon: "photos",    desc: "Photos" },
-    { name: "Pi-hole",        url: "https://pihole.reihungen.de",    icon: "pihole",    desc: "DNS and ad blocking" },
+    { name: "AdGuard Home",   url: "https://adguard.reihungen.de",   icon: "adguard",   desc: "DNS and ad blocking" },
     { name: "Spoolman",       url: "https://spoolman.reihungen.de",  icon: "spoolman",  desc: "Filament spools" },
   ],
 };

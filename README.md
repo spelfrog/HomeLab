@@ -74,35 +74,45 @@ Consumers mount that directory read-only. Renewal runs from `lego.timer` (see Sy
 To add another domain, append it as `--domains` in `lego.container`, add
 `--renew-force` once, start the service, then remove the flag again.
 
-### pihole
+### adguard
 
-Lives in `containers/pihole/`. The web password comes from a secret:
+AdGuard Home lives in `containers/adguard/`. It is the DNS server for the home
+network on `192.168.2.13:53`, forwards to Quad9 over DoT and blocks with
+OISD big plus HaGeZi Threat Intelligence Feeds (about 2.3 million rules, allow
+300 to 400 MB RAM).
 
-```bash
-printf "*****" | sudo podman secret create pihole_password -
-```
-
-`custom.list` holds the local A records for all `*.reihungen.de` hostnames so
-that they resolve to core1/core2 inside the home network instead of the public
-wildcard. `05-local-records.conf` declares the same names as local, otherwise
-dnsmasq forwards AAAA queries upstream and clients get the public wildcard
-CNAME (with an hour of TTL) anyway. Both files must list the same names.
-Deploy and reload:
+`AdGuardHome.yaml` is the whole configuration. Shipping it skips the first-run
+wizard. The web password is a bcrypt hash in that file, not a podman secret;
+the repo copy holds a placeholder, the real hash goes into the deployed file only:
 
 ```bash
-sudo cp custom.list /var/lib/pihole/pihole/hosts/custom.list
-sudo cp 05-local-records.conf /var/lib/pihole/dnsmasq/05-local-records.conf
-sudo podman exec systemd-pihole pihole reloaddns
+sudo mkdir -p /var/config/adguard /var/lib/adguard
+sudo cp AdGuardHome.yaml /var/config/adguard/AdGuardHome.yaml
+sudo podman exec caddy caddy hash-password          # paste the password, copy the $2a$... hash
+sudo sed -i 's|\$2a\$14\$REPLACE_WITH_BCRYPT_HASH|<hash>|' /var/config/adguard/AdGuardHome.yaml
+sudo systemctl restart adguard
 ```
 
-Pi-hole v6: the password secret is passed as `FTLCONF_webserver_api_password`,
-`/etc/dnsmasq.d` is only read because of `FTLCONF_misc_etc_dnsmasq_d=true`.
-The v5 data was migrated in place; a backup is at `/var/lib/pihole-backup-v5-*.tar.gz`.
+AdGuard fills in every key missing from the file with its default and rewrites
+it on start. Diff `/var/config/adguard/AdGuardHome.yaml` against the repo copy
+after the first boot and after any change made in the UI.
+
+The local A records for all `*.reihungen.de` hostnames are `filtering.rewrites`
+in `AdGuardHome.yaml`, so they resolve to core1/core2 inside the home network
+instead of the public wildcard. A rewrite with only an A answer makes AAAA
+queries return an empty NOERROR instead of the public wildcard CNAME, no
+dnsmasq workaround needed. Check with
+`dig @192.168.2.13 AAAA jellyfin.reihungen.de` (NOERROR, no answer section).
 
 Clients that cached the public answer need a flush, e.g. `resolvectl flush-caches`.
 
 The web UI is only published on `127.0.0.1:8888` and reached through caddy as
-`pihole.reihungen.de`.
+`adguard.reihungen.de`.
+
+Replaced pihole in October 2026. The pihole data is still in
+`/var/lib/pihole/` and `/var/lib/pihole-backup-v5-*.tar.gz` on core1 until
+AdGuard has proven itself; `adguard.container` has `Conflicts=pihole.service`
+so both never bind port 53 at once.
 
 ### photo (photoprism + mariadb)
 
@@ -154,13 +164,13 @@ What needs what after a change:
 Adding a service:
 
 1. `Caddyfile.<host>`: new site block with `import cert` and `reverse_proxy`
-2. `../pihole/custom.list`: new `192.168.2.1x name.reihungen.de` line, and the
-   name in `../pihole/05-local-records.conf` (see pihole)
+2. `../adguard/AdGuardHome.yaml`: new `filtering.rewrites` entry
+   `domain: name.reihungen.de`, `answer: 192.168.2.1x` (see adguard)
 3. `site/links.<host>.js`: new entry, optional logo in `site/icons/`
 
 | Host  | Hostnames (`*.reihungen.de`)                                  |
 |-------|---------------------------------------------------------------|
-| core1 | core1 (hub), home, paperless, photos, pihole, spoolman         |
+| core1 | core1 (hub), home, paperless, photos, adguard, spoolman        |
 | core2 | core2 (hub), jellyfin, jellyseerr, radarr, sonarr, prowlarr, sabnzbd, www.lügen.eu |
 
 ### luegen (www.lügen.eu)

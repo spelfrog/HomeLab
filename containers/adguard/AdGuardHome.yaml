@@ -1,0 +1,141 @@
+# Deployed to /var/config/adguard/AdGuardHome.yaml on core1, then: systemctl restart adguard
+# Shipping a config skips the first-run wizard (port 3000). AdGuard fills in every key
+# that is missing here with its default and rewrites the file on start, so after the
+# first boot diff the deployed file against this one before editing in the UI.
+http:
+  # Container port, published on 127.0.0.1:8888 and proxied by caddy
+  address: 0.0.0.0:80
+  session_ttl: 720h
+
+users:
+  # bcrypt hash, generate with: sudo podman exec caddy caddy hash-password
+  # Keep the real hash out of the repo, patch it into the deployed file only.
+  - name: admin
+    password: $2a$14$REPLACE_WITH_BCRYPT_HASH
+
+auth_attempts: 5
+block_auth_min: 15
+theme: auto
+
+dns:
+  bind_hosts:
+    - 0.0.0.0
+  port: 53
+  # LAN only, the 20 req/s per-client default trips on busy hosts
+  ratelimit: 0
+
+  # Quad9 (17 ms from here, fastest measured) and Cloudflare over DoT, asked in parallel
+  upstream_dns:
+    - tls://dns.quad9.net
+    - tls://one.one.one.one
+  # Plain IPs to resolve the upstream hostnames before DoT is up
+  bootstrap_dns:
+    - 9.9.9.9
+    - 1.1.1.1
+  # Used only when every upstream_dns fails
+  fallback_dns:
+    - 9.9.9.9
+    - 1.1.1.1
+  # parallel: ask all upstreams at once, first answer wins
+  upstream_mode: parallel
+  upstream_timeout: 10s
+
+  # Cache: 4 MiB, serve expired entries immediately and refresh in the background,
+  # never cache for less than 60 s so short CDN TTLs do not cause re-lookups
+  cache_size: 4194304
+  cache_optimistic: true
+  cache_ttl_min: 60
+  cache_ttl_max: 0
+
+  enable_dnssec: false
+  aaaa_disabled: false
+  serve_plain_dns: true
+  # Reverse lookups for 192.168.2.0/24 go to the router, not to Quad9
+  use_private_ptr_resolvers: true
+  local_ptr_upstreams:
+    - 192.168.2.1
+
+querylog:
+  enabled: true
+  file_enabled: true
+  interval: 2160h
+  size_memory: 1000
+
+statistics:
+  enabled: true
+  interval: 24h
+
+# AdBlock-syntax lists: one ||domain^ rule covers all subdomains, smaller than hosts files
+filters:
+  - enabled: true
+    url: https://big.oisd.nl
+    name: OISD big
+    id: 1
+  - enabled: true
+    url: https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/tif.txt
+    name: HaGeZi Threat Intelligence Feeds
+    id: 2
+
+whitelist_filters: []
+user_rules: []
+
+dhcp:
+  enabled: false
+
+filtering:
+  filtering_enabled: true
+  protection_enabled: true
+  filters_update_interval: 24
+  blocked_response_ttl: 10
+  # NXDOMAIN-free blocking: answer 0.0.0.0 / :: like pihole did
+  blocking_mode: default
+  safe_search:
+    enabled: false
+  # Local records for the home network (replaces pihole custom.list + 05-local-records.conf).
+  # A rewrite with only an A answer makes AAAA queries return an empty NOERROR instead of
+  # forwarding them upstream, so the public wildcard CNAME never leaks in.
+  rewrites:
+    - domain: core1.reihungen.de
+      answer: 192.168.2.13
+    - domain: home.reihungen.de
+      answer: 192.168.2.13
+    - domain: paperless.reihungen.de
+      answer: 192.168.2.13
+    - domain: photos.reihungen.de
+      answer: 192.168.2.13
+    - domain: adguard.reihungen.de
+      answer: 192.168.2.13
+    - domain: spoolman.reihungen.de
+      answer: 192.168.2.13
+    - domain: core2.reihungen.de
+      answer: 192.168.2.14
+    - domain: jellyfin.reihungen.de
+      answer: 192.168.2.14
+    - domain: jellyseerr.reihungen.de
+      answer: 192.168.2.14
+    - domain: radarr.reihungen.de
+      answer: 192.168.2.14
+    - domain: sonarr.reihungen.de
+      answer: 192.168.2.14
+    - domain: prowlarr.reihungen.de
+      answer: 192.168.2.14
+    - domain: sabnzbd.reihungen.de
+      answer: 192.168.2.14
+    - domain: www.xn--lgen-0ra.eu
+      answer: 192.168.2.14
+    - domain: xn--lgen-0ra.eu
+      answer: 192.168.2.14
+
+clients:
+  runtime_sources:
+    whois: false
+    arp: true
+    rdns: true
+    dhcp: false
+    hosts: true
+
+log:
+  file: ""
+  verbose: false
+
+schema_version: 34

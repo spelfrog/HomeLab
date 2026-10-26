@@ -31,9 +31,8 @@ photos.reihungen.de {
 	reverse_proxy localhost:2342
 }
 
-pihole.reihungen.de {
+adguard.reihungen.de {
 	import cert
-	redir / /admin/
 	reverse_proxy localhost:8888
 }
 
