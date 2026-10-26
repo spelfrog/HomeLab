@@ -2,6 +2,15 @@
 {
 	# Certificates come from lego, Caddy must not try ACME itself
 	auto_https disable_certs
+	servers {
+		# No HTTP/3: the FritzBox does not forward UDP 443
+		protocols h1 h2
+		timeouts {
+			read_header 10s
+			read_body 30s
+			idle 2m
+		}
+	}
 }
 
 (cert) {
@@ -60,13 +69,45 @@ sabnzbd.reihungen.de {
 	reverse_proxy localhost:8080
 }
 
-# www.lügen.eu (punycode), certificate is in the same lego wildcard cert
+# www.lügen.eu (punycode), certificate is in the same lego wildcard cert.
+# The only public site, so it gets an access log, body limit, security headers
+# and path restrictions.
 www.xn--lgen-0ra.eu {
 	import cert
+	log {
+		output file /data/access-luegen.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+	}
+	request_body {
+		max_size 256KB
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		# Page loads a Google Font stylesheet; scripts/styles are /static/*, no inline code
+		Content-Security-Policy "default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:"
+		-Server
+	}
+	# Telegram webhook: only from Telegram's published webhook ranges
+	@tg_bad path /webhook/* not remote_ip 149.154.160.0/20 91.108.4.0/22
+	abort @tg_bad
+	# Health check: home network only
+	@health_wan path /healthz not remote_ip private_ranges
+	abort @health_wan
 	reverse_proxy localhost:8004
 }
 
 xn--lgen-0ra.eu {
 	import cert
 	redir https://www.xn--lgen-0ra.eu{uri} permanent
+}
+
+# Catch-all for unknown hostnames hitting 443 (otherwise Caddy answers an empty 200)
+https:// {
+	import cert
+	abort
 }
