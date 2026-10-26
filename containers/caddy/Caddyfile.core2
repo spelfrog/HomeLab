@@ -60,19 +60,13 @@ sabnzbd.reihungen.de {
 	reverse_proxy localhost:8080
 }
 
-# www.lügen.eu (punycode), certificate is in the same lego wildcard cert.
-# The FritzBox forwards external 80 -> 8081 and 443 -> 8443 (IPv4 NAT) and
-# opens 8081/8443 directly for IPv6, so this site also listens on those ports.
-www.xn--lgen-0ra.eu:443, www.xn--lgen-0ra.eu:8443 {
+# www.lügen.eu (punycode), certificate is in the same lego wildcard cert
+www.xn--lgen-0ra.eu {
 	import cert
 	reverse_proxy localhost:8004
 }
 
-xn--lgen-0ra.eu:443, xn--lgen-0ra.eu:8443 {
+xn--lgen-0ra.eu {
 	import cert
-	redir https://www.xn--lgen-0ra.eu{uri} permanent
-}
-
-http://www.xn--lgen-0ra.eu:8081, http://xn--lgen-0ra.eu:8081 {
 	redir https://www.xn--lgen-0ra.eu{uri} permanent
 }
