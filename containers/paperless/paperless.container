@@ -13,14 +13,19 @@ ContainerName=paperless
 
 PublishPort=8000:8000
 
-Volume=paperless-data:/usr/src/paperless/data
-Volume=paperless-media:/usr/src/paperless/media
+Volume=paperless-data:/usr/src/paperless/data:Z
+Volume=paperless-media:/usr/src/paperless/media:Z
 #Volume=./export:/usr/src/paperless/export
 #Volume=./consume:/usr/src/paperless/consume
 
 Environment=PAPERLESS_REDIS=redis://paperless-redis:6379
 Environment=PAPERLESS_DBHOST=paperless-postgres
 Environment=PAPERLESS_OCR_LANGUAGE=deu+eng
+Environment=PAPERLESS_CSRF_TRUSTED_ORIGINS=https://paperless.reihungen.de
+# Placeholders: the Django secret key and the personal dates OCR must not pick as
+# document date (birthdays etc.) are patched into the deployed copy only, see README
+Environment=PAPERLESS_SECRET_KEY=REPLACE_WITH_SECRET_KEY
+Environment=PAPERLESS_IGNORE_DATES=dd.mm.yyyy
 
 [Service]
 Restart=always

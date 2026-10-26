@@ -129,6 +129,29 @@ Replaced pihole in October 2026. The pihole data is still in
 AdGuard has proven itself; `adguard.container` has `Conflicts=pihole.service`
 so both never bind port 53 at once.
 
+### paperless (paperless-ngx + postgres + redis)
+
+Paperless-ngx, its PostgreSQL, Redis and the `paperless.network` live in
+`containers/paperless/`. The database is only reachable inside
+`paperless.network`, so its credentials are kept inline. Two values are
+placeholders in `paperless.container` and stay out of the repo: the Django
+secret key, and `PAPERLESS_IGNORE_DATES`, a comma separated list of personal
+dates (birthdays and the like) that OCR must not pick as the document date.
+Patch them into the deployed copy only:
+
+```bash
+sudo cp paperless.container /etc/containers/systemd/paperless/paperless.container
+sudo sed -i "s|REPLACE_WITH_SECRET_KEY|$(openssl rand -base64 64 | tr -d '\n')|; s|dd.mm.yyyy|<dates>|" \
+  /etc/containers/systemd/paperless/paperless.container
+sudo systemctl daemon-reload && sudo systemctl restart paperless
+```
+
+Changing the secret key logs every user out, keep the deployed value when
+only the dates change.
+
+The web UI is published on port `8000` and reached through caddy as
+`paperless.reihungen.de`.
+
 ### photo (photoprism + mariadb)
 
 Photoprism, its MariaDB and the `photo.network` live in `containers/photo/`.
