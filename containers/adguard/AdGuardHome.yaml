@@ -3,8 +3,8 @@
 # that is missing here with its default and rewrites the file on start, so after the
 # first boot diff the deployed file against this one before editing in the UI.
 http:
-  # Container port, published on 127.0.0.1:8888 and proxied by caddy
-  address: 0.0.0.0:80
+  # Host network: loopback only, proxied by caddy as adguard.reihungen.de
+  address: 127.0.0.1:8888
   session_ttl: 720h
 
 users:
@@ -18,8 +18,11 @@ block_auth_min: 15
 theme: auto
 
 dns:
+  # Host network: LAN IPv4 and the fixed ULA (nmcli, see README). Not 0.0.0.0, that
+  # would collide with aardvark-dns and systemd-resolved on port 53
   bind_hosts:
-    - 0.0.0.0
+    - 192.168.2.13
+    - fd39:1295:99cc::13
   port: 53
   # LAN only, the 20 req/s per-client default trips on busy hosts
   ratelimit: 0

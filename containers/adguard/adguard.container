@@ -10,10 +10,15 @@ Image=docker.io/adguard/adguardhome:latest
 ContainerName=adguard
 AutoUpdate=registry
 
-# Least privilege: only binding 53/80 is needed (no DHCP, so no NET_RAW)
+# Least privilege: only binding 53/8888 is needed (no DHCP, so no NET_RAW)
 DropCapability=all
 AddCapability=NET_BIND_SERVICE
 NoNewPrivileges=true
+
+# Host network: the podman bridge is IPv4-only, so an IPv6 host port could not be
+# forwarded into it. AdGuard binds only 192.168.2.13, the fixed ULA (dns) and
+# 127.0.0.1:8888 (web UI, published as adguard.reihungen.de by caddy), see AdGuardHome.yaml
+Network=host
 
 Environment=TZ=Europe/Berlin
 
@@ -22,13 +27,10 @@ Volume=/var/config/adguard:/opt/adguardhome/conf:Z
 # Query log, statistics, filter cache
 Volume=/var/lib/adguard:/opt/adguardhome/work:Z
 
-PublishPort=192.168.2.13:53:53/tcp
-PublishPort=192.168.2.13:53:53/udp
-# Web UI only on loopback, published as adguard.reihungen.de by caddy (same port pihole used)
-PublishPort=127.0.0.1:8888:80/tcp
-
 [Service]
 Restart=always
+# The fixed ULA is tentative (DAD) for a moment after boot, the first bind on it fails
+RestartSec=5
 TimeoutStartSec=900
 
 [Install]

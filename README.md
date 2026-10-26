@@ -106,8 +106,23 @@ dnsmasq workaround needed. Check with
 
 Clients that cached the public answer need a flush, e.g. `resolvectl flush-caches`.
 
-The web UI is only published on `127.0.0.1:8888` and reached through caddy as
-`adguard.reihungen.de`.
+IPv6 clients learn their DNS server from the router (RDNSS / DHCPv6), so core1
+needs a stable IPv6 address for AdGuard to listen on. The SLAAC addresses are
+dynamic; a fixed ULA is added to the NetworkManager profile (persistent, also
+on CoreOS) and published in `adguard.container`:
+
+```bash
+sudo nmcli con mod enp1s0 +ipv6.addresses fd39:1295:99cc::13/64
+sudo nmcli con up enp1s0
+```
+
+In the router, announce `fd39:1295:99cc::13` as DNSv6 server (RDNSS and
+DHCPv6) and `192.168.2.13` as DHCPv4 DNS server.
+
+The container runs on the host network (the podman bridge is IPv4-only, an
+IPv6 host port cannot be forwarded into it). `dns.bind_hosts` therefore lists
+`192.168.2.13` and the ULA explicitly, `http.address` is `127.0.0.1:8888` and
+reached through caddy as `adguard.reihungen.de`.
 
 Replaced pihole in October 2026. The pihole data is still in
 `/var/lib/pihole/` and `/var/lib/pihole-backup-v5-*.tar.gz` on core1 until
