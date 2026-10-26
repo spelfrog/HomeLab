@@ -161,7 +161,35 @@ Adding a service:
 | Host  | Hostnames (`*.reihungen.de`)                                  |
 |-------|---------------------------------------------------------------|
 | core1 | core1 (hub), home, paperless, photos, pihole, spoolman         |
-| core2 | core2 (hub), jellyfin, jellyseerr, radarr, sonarr, prowlarr, sabnzbd |
+| core2 | core2 (hub), jellyfin, jellyseerr, radarr, sonarr, prowlarr, sabnzbd, www.lügen.eu |
+
+### luegen (www.lügen.eu)
+
+Runs on core2. Image from the `luegen.eu` repo, data is one SQLite file.
+The hostnames are the punycode form `xn--lgen-0ra.eu`; the lego certificate
+already covers them.
+
+```bash
+sudo mkdir -p /var/config/luegen && sudo chown 1000:1000 /var/config/luegen
+# Lies.sqlite from the old host (rockrack: /home/raphael/lugen/Lies.sqlite)
+sudo cp Lies.sqlite /var/config/luegen/ && sudo chown 1000:1000 /var/config/luegen/Lies.sqlite
+
+printf "123456:bot-token-from-botfather" | sudo podman secret create luegen_bot_token -
+python3 -c "import secrets;print(secrets.token_urlsafe(32))" | tr -d '\n' | sudo podman secret create luegen_webhook_token -
+
+sudo cp luegen.container /etc/containers/systemd/
+sudo systemctl daemon-reload && sudo systemctl start luegen.service
+```
+
+Then add the site block from `caddy/Caddyfile.core2` (reload caddy) and
+register the Telegram webhook once:
+
+```bash
+sudo podman exec luegen python -m app.set_webhook
+```
+
+Unknown Telegram users get their id in the bot reply; add it to `ADMIN_IDS`
+in `luegen.container` to grant access.
 
 ### jellyfin prowlarr radarr sabnzbd sonarr
 

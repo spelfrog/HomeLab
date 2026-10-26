@@ -45,3 +45,14 @@ sabnzbd.reihungen.de {
 	import cert
 	reverse_proxy localhost:8080
 }
+
+# www.lügen.eu (punycode), certificate is in the same lego wildcard cert
+www.xn--lgen-0ra.eu {
+	import cert
+	reverse_proxy localhost:8004
+}
+
+xn--lgen-0ra.eu {
+	import cert
+	redir https://www.xn--lgen-0ra.eu{uri} permanent
+}

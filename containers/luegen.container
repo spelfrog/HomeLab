@@ -1,0 +1,33 @@
+[Unit]
+Description=lügen.eu Container (website + Telegram bot)
+After=local-fs.target network-online.target
+Wants=network-online.target
+
+[Container]
+# Built from https://git-ce.rwth-aachen.de/raphael/luegen.eu (buildAndPush.sh)
+Image=registry.git-ce.rwth-aachen.de/raphael/luegen.eu:latest
+ContainerName=luegen
+AutoUpdate=registry
+
+User=1000
+Group=1000
+
+Environment=TZ=Europe/Berlin
+Environment=WEBSITE_URL=https://www.xn--lgen-0ra.eu/
+# Telegram user ids allowed to manage lies
+Environment=ADMIN_IDS=447941998,610185013
+Secret=luegen_bot_token,type=env,target=BOT_TOKEN
+Secret=luegen_webhook_token,type=env,target=WEBHOOK_TOKEN
+
+# SQLite database (Lies.sqlite)
+Volume=/var/config/luegen:/data:Z
+
+# Only on loopback, published as www.lügen.eu by caddy
+PublishPort=127.0.0.1:8004:8000/tcp
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target
