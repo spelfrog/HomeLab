@@ -13,6 +13,12 @@ AutoUpdate=registry
 # The image runs as uid 1000; map it to the rootless user so /data is writable
 UserNS=keep-id:uid=1000,gid=1000
 
+# Least privilege: no capabilities, read-only image, process limit
+DropCapability=all
+NoNewPrivileges=true
+ReadOnly=true
+PodmanArgs=--pids-limit 200
+
 Environment=TZ=Europe/Berlin
 Environment=WEBSITE_URL=https://www.xn--lgen-0ra.eu/
 # Telegram user ids allowed to manage lies
