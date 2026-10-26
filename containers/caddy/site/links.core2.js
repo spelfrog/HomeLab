@@ -11,5 +11,6 @@ window.HUB = {
     { name: "Sonarr",     url: "https://sonarr.reihungen.de",     icon: "sonarr",     desc: "Series" },
     { name: "Prowlarr",   url: "https://prowlarr.reihungen.de",   icon: "prowlarr",   desc: "Indexers" },
     { name: "SABnzbd",    url: "https://sabnzbd.reihungen.de",    icon: "sabnzbd",    desc: "Downloads" },
+    { name: "Lügen.eu",   url: "https://www.xn--lgen-0ra.eu",     icon: "luegen",     desc: "Der Ansprechpartner in Unwahrheiten" },
   ],
 };
