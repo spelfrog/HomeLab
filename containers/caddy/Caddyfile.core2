@@ -8,8 +8,16 @@
 	tls /certs/reihungen.de.crt /certs/reihungen.de.key
 }
 
+# Everything except www.lügen.eu is reachable from the home network only.
+# The FritzBox forwards 80/443 without proxying, so the client IP is real.
+(lan_only) {
+	@wan not remote_ip private_ranges
+	abort @wan
+}
+
 # Hub page listing this host's services (static files from /var/config/caddy/site)
 core2.reihungen.de {
+	import lan_only
 	import cert
 	root * /srv
 	file_server
@@ -17,31 +25,37 @@ core2.reihungen.de {
 }
 
 jellyfin.reihungen.de {
+	import lan_only
 	import cert
 	reverse_proxy localhost:8096
 }
 
 jellyseerr.reihungen.de {
+	import lan_only
 	import cert
 	reverse_proxy localhost:5055
 }
 
 radarr.reihungen.de {
+	import lan_only
 	import cert
 	reverse_proxy localhost:7878
 }
 
 sonarr.reihungen.de {
+	import lan_only
 	import cert
 	reverse_proxy localhost:8989
 }
 
 prowlarr.reihungen.de {
+	import lan_only
 	import cert
 	reverse_proxy localhost:9696
 }
 
 sabnzbd.reihungen.de {
+	import lan_only
 	import cert
 	reverse_proxy localhost:8080
 }

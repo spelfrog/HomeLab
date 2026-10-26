@@ -1,6 +1,7 @@
+# Rootless user quadlet. Belongs in ~luegen/.config/containers/systemd/ (see README "luegen").
 [Unit]
 Description=lügen.eu Container (website + Telegram bot)
-After=local-fs.target network-online.target
+After=network-online.target
 Wants=network-online.target
 
 [Container]
@@ -9,8 +10,8 @@ Image=registry.git-ce.rwth-aachen.de/raphael/luegen.eu:latest
 ContainerName=luegen
 AutoUpdate=registry
 
-User=1000
-Group=1000
+# The image runs as uid 1000; map it to the rootless user so /data is writable
+UserNS=keep-id:uid=1000,gid=1000
 
 Environment=TZ=Europe/Berlin
 Environment=WEBSITE_URL=https://www.xn--lgen-0ra.eu/
@@ -20,9 +21,9 @@ Secret=luegen_bot_token,type=env,target=BOT_TOKEN
 Secret=luegen_webhook_token,type=env,target=WEBHOOK_TOKEN
 
 # SQLite database (Lies.sqlite)
-Volume=/var/config/luegen:/data:Z
+Volume=%h/data:/data:Z
 
-# Only on loopback, published as www.lügen.eu by caddy
+# Only on loopback, published as www.lügen.eu by caddy (host network)
 PublishPort=127.0.0.1:8004:8000/tcp
 
 [Service]
@@ -30,4 +31,4 @@ Restart=always
 TimeoutStartSec=900
 
 [Install]
-WantedBy=multi-user.target default.target
+WantedBy=default.target

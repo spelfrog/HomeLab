@@ -165,29 +165,35 @@ Adding a service:
 
 ### luegen (www.lügen.eu)
 
-Runs on core2. Image from the `luegen.eu` repo, data is one SQLite file.
-The hostnames are the punycode form `xn--lgen-0ra.eu`; the lego certificate
-already covers them.
+Runs on core2 as a **rootless** container under its own system user `luegen`,
+isolated from the root podman containers. The image comes from the `luegen.eu`
+repo, data is one SQLite file. Hostnames are the punycode form
+`xn--lgen-0ra.eu`; the lego certificate already covers them.
+
+www.lügen.eu is the only site block in `Caddyfile.core2` without
+`import lan_only`, so it is the only one reachable from the internet.
 
 ```bash
-sudo mkdir -p /var/config/luegen && sudo chown 1000:1000 /var/config/luegen
+# user with subuid range and lingering user session
+sudo useradd --create-home --comment "lügen.eu" luegen
+sudo loginctl enable-linger luegen
+sudo mkdir -p ~luegen/.config/containers/systemd ~luegen/data
+sudo cp luegen.container ~luegen/.config/containers/systemd/
 # Lies.sqlite from the old host (rockrack: /home/raphael/lugen/Lies.sqlite)
-sudo cp Lies.sqlite /var/config/luegen/ && sudo chown 1000:1000 /var/config/luegen/Lies.sqlite
+sudo cp Lies.sqlite ~luegen/data/
+sudo chown -R luegen:luegen ~luegen
 
-printf "123456:bot-token-from-botfather" | sudo podman secret create luegen_bot_token -
-python3 -c "import secrets;print(secrets.token_urlsafe(32))" | tr -d '\n' | sudo podman secret create luegen_webhook_token -
-
-sudo cp luegen.container /etc/containers/systemd/
-sudo systemctl daemon-reload && sudo systemctl start luegen.service
+# everything below runs as the luegen user
+sudo -u luegen bash -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u)
+printf "123456:bot-token-from-botfather" | podman secret create luegen_bot_token -
+python3 -c "import secrets;print(secrets.token_urlsafe(32), end=\"\")" | podman secret create luegen_webhook_token -
+systemctl --user daemon-reload && systemctl --user start luegen.service
+podman exec luegen python -m app.set_webhook'
 ```
 
-Then add the site block from `caddy/Caddyfile.core2` (reload caddy) and
-register the Telegram webhook once:
+Then copy `caddy/Caddyfile.core2` and `sudo systemctl start caddy-reload.service`.
 
-```bash
-sudo podman exec luegen python -m app.set_webhook
-```
-
+Updates: `sudo -u luegen XDG_RUNTIME_DIR=/run/user/$(id -u luegen) podman auto-update`.
 Unknown Telegram users get their id in the bot reply; add it to `ADMIN_IDS`
 in `luegen.container` to grant access.
 
