@@ -1,0 +1,46 @@
+[Unit]
+Description=OpenThread Border Router Container (Thread radio for homeassistant)
+After=local-fs.target network-online.target
+Wants=network-online.target
+Before=homeassistant.service
+
+[Container]
+Image=ghcr.io/ownbee/hass-otbr-docker:latest
+ContainerName=otbr
+AutoUpdate=registry
+
+# otbr-agent creates the wpan0 tun interface, sets ip forwarding sysctls and
+# installs ip6tables/NAT64 rules on the host, which needs a privileged container
+PodmanArgs=--privileged
+AddDevice=/dev/net/tun:/dev/net/tun
+# Thread radio (RCP firmware), stable path from: ls -l /dev/serial/by-id/
+AddDevice=/dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Plus_MG24_c41cbc22dea2ef11a969976661ce3355-if00-port0:/dev/ttyThread
+
+# Host network: the border router advertises routes and mDNS on the LAN
+Network=host
+
+Environment=TZ=Europe/Berlin
+Environment=DEVICE=/dev/ttyThread
+Environment=BAUDRATE=460800
+# Nerivec ot-rcp builds for the Dongle-PMG24 use software flow control (*_sw_flow.gbl)
+Environment=FLOW_CONTROL=0
+Environment=FIREWALL=1
+Environment=NAT64=1
+Environment=BACKBONE_IF=enp1s0
+Environment=AUTOFLASH_FIRMWARE=0
+# REST API for the homeassistant OTBR integration: http://127.0.0.1:8081
+# The image always binds it to :: (all interfaces), only the port is configurable
+Environment=OTBR_REST_PORT=8081
+# Web UI can form/reset the Thread network without auth, keep it on loopback
+Environment=OTBR_WEB_PORT=7586
+Environment=OTBR_WEB_INTERFACE=127.0.0.1
+
+# Thread network dataset and settings (the image symlinks /var/lib/thread to /data/thread)
+Volume=/var/lib/otbr:/data/thread:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

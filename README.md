@@ -162,6 +162,28 @@ are kept inline. Only the admin password is a secret:
 printf "*****" | sudo podman secret create photoprism_password -
 ```
 
+### homeassistant (home assistant + otbr)
+
+`otbr` is the OpenThread Border Router for the Thread radio (SkyConnect / ZBT-1
+with RCP firmware). Both containers use the host network; homeassistant talks
+to otbr's REST API on `127.0.0.1:8081`.
+
+```bash
+sudo mkdir -p /var/config/homeassistant /var/lib/otbr
+
+# find the radio and put its path into AddDevice= in otbr.container
+ls -l /dev/serial/by-id/
+
+# otbr routes between Thread and the LAN, it needs IPv6 forwarding on the host
+printf "net.ipv6.conf.all.forwarding = 1\n" | sudo tee /etc/sysctl.d/90-otbr.conf
+sudo sysctl --system
+# forwarding must not cost core1 its RA default route, check it is still there
+ip -6 route show default
+```
+
+Then in Home Assistant: Settings → Devices & Services → Add *Open Thread Border
+Router* with URL `http://127.0.0.1:8081`, then add *Thread*.
+
 ### caddy
 
 Reverse proxy with the lego certificate, one instance per host. The unit is
