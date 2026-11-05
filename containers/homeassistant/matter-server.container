@@ -1,0 +1,40 @@
+[Unit]
+Description=Matter Server Container (matter.js, Matter controller for homeassistant)
+After=local-fs.target network-online.target otbr.service
+Wants=network-online.target
+Before=homeassistant.service
+
+[Container]
+Image=ghcr.io/matter-js/matterjs-server:stable
+ContainerName=matter-server
+AutoUpdate=registry
+
+# Runs as uid 1000, needs no capabilities (ping works via net.ipv4.ping_group_range)
+DropCapability=all
+NoNewPrivileges=true
+# Only writes to /data (upstream compose runs it read_only too)
+ReadOnly=true
+
+# Host network: Matter uses mDNS and IPv6 on the LAN, Thread devices are reached through otbr
+Network=host
+
+Environment=TZ=Europe/Berlin
+Environment=PRIMARY_INTERFACE=enp1s0
+# WebSocket API and dashboard (no auth) only on loopback,
+# homeassistant (host network) connects to ws://127.0.0.1:5580/ws
+Environment=LISTEN_ADDRESS=127.0.0.1
+# Image default is ansi, which puts color codes into the journal
+Environment=MATTER_LOG_FORMAT=plain
+# Push time to devices that need it (locks, thermostats), like the HA add-on does
+# when the host clock is NTP synchronized (chrony on core1)
+Environment=ENABLE_TIME_SYNC=true
+
+# Fabric and node data, owned by 1000:1000
+Volume=/var/config/matter-server:/data:Z
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target default.target

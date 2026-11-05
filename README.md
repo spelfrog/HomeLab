@@ -184,6 +184,20 @@ ip -6 route show default
 Then in Home Assistant: Settings → Devices & Services → Add *Open Thread Border
 Router* with URL `http://127.0.0.1:8081`, then add *Thread*.
 
+`matter-server` (matter.js) is the Matter controller, homeassistant connects to
+it on `ws://127.0.0.1:5580/ws`. It runs as uid 1000:
+
+```bash
+sudo mkdir -p /var/config/matter-server && sudo chown 1000:1000 /var/config/matter-server
+```
+
+In Home Assistant add the *Matter* integration with `ws://127.0.0.1:5580/ws`.
+Devices are commissioned from the Home Assistant Companion app (Settings →
+Devices & Services → Add device → Add Matter device). For Thread devices the
+phone needs the Thread credentials first: Android: Companion app → Settings →
+Troubleshooting → Sync Thread credentials, iOS: Thread integration → Configure →
+Send credentials to phone.
+
 ### caddy
 
 Reverse proxy with the lego certificate, one instance per host. The unit is
